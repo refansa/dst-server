@@ -1,0 +1,78 @@
+services:
+  # ── Mod updater ───────────────────────────────────────────
+  # Run: docker compose --profile mod-update run --rm dst-mod-updater
+  dst-mod-updater:
+    image: superjump22/dontstarvetogether:latest
+    profiles: [mod-update]
+    command: >
+      -only_update_server_mods
+      -ugc_directory "/home/steam/dst/game/ugc_mods"
+      -persistent_storage_root "/home/steam/dst"
+      -conf_dir "save"
+    volumes:
+      - ./data/mods:/home/steam/dst/game/mods
+      - dst_ugc_mods:/home/steam/dst/game/ugc_mods
+    restart: no
+
+  # ── Master shard (Overworld) ──────────────────────────────
+  dst-master:
+    image: superjump22/dontstarvetogether:latest
+    container_name: dst-master
+    restart: unless-stopped
+    ports:
+      - "10999:10999/udp"
+      - "27016:27016/udp"
+      - "8766:8766/udp"
+      - "10888:10888/udp"
+    command: >
+      -skip_update_server_mods
+      -ugc_directory "/home/steam/dst/game/ugc_mods"
+      -persistent_storage_root "/home/steam/dst"
+      -conf_dir "save"
+      -cluster "Cluster_1"
+      -shard "Master"
+    volumes:
+      - ./data/save:/home/steam/dst/save
+      - ./data/mods:/home/steam/dst/game/mods
+      - dst_ugc_mods:/home/steam/dst/game/ugc_mods
+    healthcheck:
+      test: ["CMD-SHELL", "grep -q dontstarve /proc/1/cmdline && grep -q 'Online Server Started' /home/steam/dst/save/Cluster_1/Master/server_log.txt 2>/dev/null"]
+      interval: 15s
+      timeout: 5s
+      retries: 24
+      start_period: 30s
+    deploy:
+      resources:
+        limits:
+          memory: 4G
+
+  # ── Caves shard ──────────────────────────────────────────
+  dst-caves:
+    image: superjump22/dontstarvetogether:latest
+    container_name: dst-caves
+    restart: unless-stopped
+    depends_on:
+      dst-master:
+        condition: service_healthy
+    ports:
+      - "11000:11000/udp"
+      - "27017:27017/udp"
+      - "8767:8767/udp"
+    command: >
+      -skip_update_server_mods
+      -ugc_directory "/home/steam/dst/game/ugc_mods"
+      -persistent_storage_root "/home/steam/dst"
+      -conf_dir "save"
+      -cluster "Cluster_1"
+      -shard "Caves"
+    volumes:
+      - ./data/save:/home/steam/dst/save
+      - ./data/mods:/home/steam/dst/game/mods
+      - dst_ugc_mods:/home/steam/dst/game/ugc_mods
+    deploy:
+      resources:
+        limits:
+          memory: 4G
+
+volumes:
+  dst_ugc_mods:

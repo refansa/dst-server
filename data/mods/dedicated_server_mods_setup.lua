@@ -1,0 +1,3 @@
+-- dedicated_server_mods_setup.lua
+-- Add Workshop mod IDs below. One line per mod.
+-- Example: ServerModSetup("378160973")

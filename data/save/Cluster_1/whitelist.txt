@@ -1,0 +1,2 @@
+-- whitelist.txt
+-- One Klei User ID (KU_ format) per line. Empty = no whitelist restriction.

@@ -1,0 +1,2 @@
+-- adminlist.txt
+-- One Klei User ID (KU_ format) per line. Use setup.sh to apply.

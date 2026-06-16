@@ -1,0 +1,5 @@
+--ForceEnableMod("kioskmode_dst")
+--EnableModDebugPrint()
+--EnableModError()
+--DisableModDisabling()
+--DisableLocalModWarning()

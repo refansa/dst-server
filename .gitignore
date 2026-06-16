@@ -1,0 +1,18 @@
+# ── Secrets ────────────────────────────────────────────
+.env
+data/save/Cluster_1/cluster_token.txt
+
+# ── Runtime-generated save data (world, sessions, profiles) ──
+data/save/Cluster_1/*/save/
+data/save/Cluster_1/*/backup/
+
+# ── Server logs ───────────────────────────────────────
+data/save/Cluster_1/server_log.txt
+data/save/Cluster_1/server_log.txt.old
+data/save/Cluster_1/server_chat_log.txt
+data/save/Cluster_1/*/server_log.txt
+data/save/Cluster_1/*/server_log.txt.old
+data/save/Cluster_1/*/server_chat_log.txt
+
+# ── Mod downloads (managed by SteamCMD at runtime) ────
+data/ugc_mods/
