@@ -114,6 +114,97 @@ docker compose restart
 
 Admin commands in-game: `c_godmode()`, `c_give("meat", 10)`, `c_save()`, `c_shutdown()`
 
+## Using an Existing World
+
+If you already have a DST world (from a local game, a SteamCMD dedicated server, or another Docker setup), you can load it instead of generating a fresh one.
+
+### 1. Stop the Docker server
+
+```bash
+docker compose down
+```
+
+### 2. Copy the `save/` directories
+
+The world data lives in `save/` folders inside each shard. Copy them from your old setup into the corresponding paths here:
+
+**From a local Windows game (Documents):**
+```powershell
+Copy-Item -Recurse -Force "$env:USERPROFILE\Documents\Klei\DoNotStarveTogether\Cluster_1\Master\save" data\save\Cluster_1\Master\save
+Copy-Item -Recurse -Force "$env:USERPROFILE\Documents\Klei\DoNotStarveTogether\Cluster_1\Caves\save"  data\save\Cluster_1\Caves\save
+```
+
+**From a SteamCMD dedicated server (Linux):**
+```bash
+cp -r ~/.klei/DoNotStarveTogether/Cluster_1/Master/save data/save/Cluster_1/Master/save
+cp -r ~/.klei/DoNotStarveTogether/Cluster_1/Caves/save  data/save/Cluster_1/Caves/save
+```
+
+**From another Docker image:**
+```bash
+# Common save locations for other images:
+#   jamesits/dst-server:     /data/DoNotStarveTogether/Cluster_1/Master/save/
+#   Axlfc/DST-Server-Docker: /data/DoNotStarveTogether/Cluster_1/Master/save/
+#   webhippie/dst:           /var/lib/game/server/general/Master/save/
+#
+# docker cp <old_container>:/path/to/save ./data/save/Cluster_1/Master/save
+```
+
+### 3. Verify shard configuration
+
+The `server.ini` files from your old setup may have different ports or settings. Make sure they match this project's expected values:
+
+**`Master/server.ini`:**
+```ini
+[NETWORK]
+server_port = 10999
+
+[SHARD]
+is_master = true
+name = Master
+id = 1
+
+[STEAM]
+master_server_port = 27016
+authentication_port = 8766
+```
+
+**`Caves/server.ini`:**
+```ini
+[NETWORK]
+server_port = 11000
+
+[SHARD]
+is_master = false
+name = Caves
+id = 2
+master_ip = dst-master
+master_port = 10888
+
+[STEAM]
+master_server_port = 27017
+authentication_port = 8767
+```
+
+### 4. Start the server
+
+```bash
+docker compose up -d
+```
+
+The server will load your existing world instead of generating a new one. You should see `Begin Session:` in the logs followed by your old session ID, not world generation output.
+
+> **Note:** Once a world is generated, `worldgenoverride.lua` is **ignored** — the world loads from the `save/` directory regardless. You can keep the override files for future reference or remove them.
+
+### Migrating mods
+
+If your old world used mods, you need to set them up again:
+
+1. Copy the Workshop ID list from your old `dedicated_server_mods_setup.lua` into `data/mods/dedicated_server_mods_setup.lua`
+2. Run the mod updater: `docker compose --profile mod-update run --rm dst-mod-updater`
+3. Copy `modoverrides.lua` from your old world into `data/save/Cluster_1/modoverrides.lua`
+4. Restart: `docker compose restart`
+
 ## Port Reference
 
 | Port | Protocol | Service | Purpose |
