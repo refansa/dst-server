@@ -1,2 +1,13 @@
--- whitelist.txt
--- One Klei User ID (KU_ format) per line. Empty = no whitelist restriction.
+-- =============================================================================
+-- whitelist.txt — Whitelisted players
+-- =============================================================================
+--
+-- When whitelist is populated, ONLY players listed here can join the server.
+-- To use this, also set whitelist_slots > 0 in cluster.ini.
+--
+-- One Klei User ID (KU_ format) per line.
+-- Leave this file empty (or with only comments) for no whitelist restriction.
+--
+-- Example:
+-- KU_AbCdEfGhIjKlMnOpQrStUvWx
+-- =============================================================================

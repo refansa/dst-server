@@ -1,2 +1,10 @@
--- blocklist.txt
+-- =============================================================================
+-- blocklist.txt — Banned players
+-- =============================================================================
+--
+-- Players listed here are prevented from joining the server.
 -- One Klei User ID (KU_ format) per line.
+--
+-- Example:
+-- KU_AbCdEfGhIjKlMnOpQrStUvWx
+-- =============================================================================

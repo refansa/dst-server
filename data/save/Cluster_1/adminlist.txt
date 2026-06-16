@@ -1,2 +1,17 @@
--- adminlist.txt
--- One Klei User ID (KU_ format) per line. Use setup.sh to apply.
+-- =============================================================================
+-- adminlist.txt — Server administrators
+-- =============================================================================
+--
+-- Add one Klei User ID per line to grant admin privileges.
+-- Admin can use Lua console commands like c_godmode(), c_save(), c_shutdown().
+--
+-- To find a player's Klei User ID:
+--   1. Ask them to connect to the server
+--   2. Have them type /klist in chat (or !klist)
+--   3. The server logs their KU_XXXXXXXX ID
+--   4. Add that ID here, one per line
+--
+-- Example:
+-- KU_AbCdEfGhIjKlMnOpQrStUvWx
+-- KU_ZyXwVuTsRqPoNmLkJiHgFeDc
+-- =============================================================================

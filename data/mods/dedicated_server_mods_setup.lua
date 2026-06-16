@@ -1,3 +1,25 @@
--- dedicated_server_mods_setup.lua
--- Add Workshop mod IDs below. One line per mod.
--- Example: ServerModSetup("378160973")
+-- =============================================================================
+-- dedicated_server_mods_setup.lua — Mod download list
+-- =============================================================================
+-- Reference: https://forums.kleientertainment.com/forums/topic/64552-dedicated-server-settings-guide/
+--
+-- Add one ServerModSetup("WorkshopID") line per mod you want downloaded.
+-- After editing, run the mod updater to download them:
+--
+--   docker compose --profile mod-update run --rm dst-mod-updater
+--
+-- Then enable the mods in data/save/Cluster_1/modoverrides.lua.
+--
+-- To find a mod's Workshop ID:
+--   https://steamcommunity.com/sharedfiles/filedetails/?id=378160973
+--                                                       ^^^^^^^^^
+-- =============================================================================
+
+-- Examples (uncomment to use):
+-- ServerModSetup("378160973")     -- Global Positions
+-- ServerModSetup("375859599")     -- Health Info
+-- ServerModSetup("376333686")     -- Combined Status
+-- ServerModSetup("351325790")     -- Geometric Placement
+
+-- You can also install an entire Workshop collection:
+-- ServerModCollectionSetup("379114180")
