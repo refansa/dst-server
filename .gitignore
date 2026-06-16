@@ -2,6 +2,11 @@
 .env
 data/save/Cluster_1/cluster_token.txt
 
+# ── User-managed config (never commit personal data) ──
+data/mods/mods.conf
+data/mods/dedicated_server_mods_setup.lua
+data/save/Cluster_1/modoverrides.lua
+
 # ── Runtime-generated save data (world, sessions, profiles) ──
 data/save/Cluster_1/*/save/
 data/save/Cluster_1/*/backup/

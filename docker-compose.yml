@@ -4,11 +4,16 @@ services:
   dst-mod-updater:
     image: superjump22/dontstarvetogether:latest
     profiles: [mod-update]
-    command: >
-      -only_update_server_mods
-      -ugc_directory "/home/steam/dst/game/ugc_mods"
-      -persistent_storage_root "/home/steam/dst"
-      -conf_dir "save"
+    entrypoint: ["timeout", "120"]
+    command:
+      - ./dontstarve_dedicated_server_nullrenderer_x64
+      - -only_update_server_mods
+      - -ugc_directory
+      - /home/steam/dst/game/ugc_mods
+      - -persistent_storage_root
+      - /home/steam/dst
+      - -conf_dir
+      - save
     volumes:
       - ./data/mods:/home/steam/dst/game/mods
       - dst_ugc_mods:/home/steam/dst/game/ugc_mods
