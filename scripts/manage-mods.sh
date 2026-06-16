@@ -161,6 +161,10 @@ LUA_HEADER
 
     echo "}" >> "$OVERRIDES_LUA"
 
+# Copy to each shard directory
+cp "$OVERRIDES_LUA" "$SCRIPT_DIR/data/save/Cluster_1/Master/modoverrides.lua"
+cp "$OVERRIDES_LUA" "$SCRIPT_DIR/data/save/Cluster_1/Caves/modoverrides.lua"
+
     echo "✓ Regenerated Lua files"
     echo "Running mod updater (download/update mods) ..."
     cd "$SCRIPT_DIR"

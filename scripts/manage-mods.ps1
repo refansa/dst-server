@@ -172,11 +172,11 @@ return {
     if ($hasMods) {
         foreach ($m in $mods) {
             if (-not $m.Enabled) {
-                Add-Content $OverridesLua "  -- [``workshop-$($m.Id)``] = { enabled = false },"
+                Add-Content $OverridesLua "  -- [""workshop-$($m.Id)""] = { enabled = false },"
                 continue
             }
             if ($m.Config) {
-                Add-Content $OverridesLua "  [``workshop-$($m.Id)``] = {"
+                Add-Content $OverridesLua "  [""workshop-$($m.Id)""] = {"
                 Add-Content $OverridesLua "    enabled = true,"
                 Add-Content $OverridesLua "    configuration_options = {"
                 foreach ($pair in ($m.Config -split ',')) {
@@ -187,7 +187,7 @@ return {
                 Add-Content $OverridesLua "    },"
                 Add-Content $OverridesLua "  },"
             } else {
-                Add-Content $OverridesLua "  [``workshop-$($m.Id)``] = { enabled = true },"
+                Add-Content $OverridesLua "  [""workshop-$($m.Id)""] = { enabled = true },"
             }
         }
     } else {
@@ -195,6 +195,10 @@ return {
     }
 
     Add-Content $OverridesLua "}"
+
+    # Copy to each shard directory
+    Copy-Item $OverridesLua (Join-Path $ScriptDir "data/save/Cluster_1/Master/modoverrides.lua") -Force
+    Copy-Item $OverridesLua (Join-Path $ScriptDir "data/save/Cluster_1/Caves/modoverrides.lua") -Force
 
     Write-Host "✓ Regenerated Lua files"
     Write-Host "Running mod updater ..."
