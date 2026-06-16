@@ -17,3 +17,6 @@ data/save/Cluster_1/*/server_chat_log.txt
 
 # ── Mod downloads (managed by SteamCMD at runtime) ────
 data/ugc_mods/
+
+# ── World backup archives (created by scripts/backup-world.ps1) ──
+data/backups/

@@ -35,6 +35,10 @@ cp .env.example .env
 
 # 4. Start the server
 docker compose up -d
+
+# 5. (Optional) Build and start the backup scheduler
+docker compose build dst-backup
+docker compose up -d dst-backup
 ```
 
 Your server will appear in the in-game server browser under **Browse Games → Server** within 1–2 minutes.
@@ -44,15 +48,22 @@ Your server will appear in the in-game server browser under **Browse Games → S
 ```
 dst-server/
 ├── .env.example            # Environment variable template
-├── docker-compose.yml      # Master + Caves + mod updater services
+├── docker-compose.yml      # Master + Caves + mod updater + backup scheduler
 ├── setup.ps1               # PowerShell setup (Windows)
 ├── setup.sh                # Bash setup (Linux/macOS)
+├── docker/
+│   └── backup/             # Backup sidecar container
+│       ├── Dockerfile      #   Alpine + docker-cli + zip + cron
+│       ├── backup.sh       #   Backup script (c_save → stage → zip → validate → prune)
+│       └── crontab         #   Cron schedule (default: every 4 hours)
 ├── scripts/
-│   └── update-mods.sh      # Mod update helper
+│   ├── update-mods.sh      # Mod update helper
+│   └── backup-world.ps1    # Host-side backup script (alternative)
 ├── data/
 │   ├── mods/               # V1 mod files
 │   │   ├── dedicated_server_mods_setup.lua   # Add Workshop IDs here
 │   │   └── modsettings.lua
+│   ├── backups/            # World backup archives (by backup-world.ps1)
 │   ├── ugc_mods/           # V2 mods (Docker volume, auto-managed)
 │   └── save/Cluster_1/     # Cluster configuration
 │       ├── cluster.ini
@@ -143,6 +154,83 @@ docker compose restart
 378160973  true  SHOWFIREICONS=true,SHAREMINIMAPPROGRESS=true
 351325790  true
 375859599  true
+```
+
+### World backups
+
+DST's in-game save system keeps a small number of rollback snapshots (configurable via `max_snapshots` in `cluster.ini`), but these are stored alongside the live world and are **not immune to corruption**. The backup script creates filesystem-level snapshots for disaster recovery.
+
+```powershell
+# Create a backup now (triggers c_save(), then zips the world)
+.\scripts\backup-world.ps1
+
+# Custom retention (7 days, max 10 archives)
+.\scripts\backup-world.ps1 -RetentionDays 7 -RetentionCount 10
+
+# Dry run — preview what would happen
+.\scripts\backup-world.ps1 -WhatIf
+
+# Emergency backup of whatever is on disk (skip c_save())
+.\scripts\backup-world.ps1 -SkipSave
+```
+
+**What it does:**
+1. Sends `c_save()` to the running `dst-master` container via the Docker socket to flush world state
+2. Copies the `Cluster_1/` save directory (excluding server-rotated logs and temp data)
+3. Compresses it into a timestamped ZIP: `Cluster_1-2026-06-16-140000.zip`
+4. Validates the archive integrity
+5. Prunes old backups (default: keep 30 most recent, max age 14 days)
+
+**On-demand backup (from the host):**
+
+```powershell
+docker compose run --rm dst-backup /usr/local/bin/backup.sh
+```
+
+**Scheduling (built-in Docker cron):**
+
+The `dst-backup` service runs a cron daemon inside the container. It triggers automatically every hour at 5 minutes past.
+
+```bash
+# 1. Build the backup image (first time or after editing cron schedule)
+docker compose build dst-backup
+
+# 2. Start the backup scheduler
+docker compose up -d dst-backup
+```
+
+The backup schedule is defined in `docker/backup/crontab`. Edit that file to customise, then rebuild:
+
+```bash
+# Example: run every 2 hours at :15 past
+echo "15 */2 * * * /usr/local/bin/backup.sh" > docker/backup/crontab
+docker compose build dst-backup && docker compose up -d dst-backup
+```
+
+**Environment variables (set in docker-compose.yml under `dst-backup.environment`):**
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `RETENTION_COUNT` | `168` | Max backup archives to keep (~7 days at 1/hr) |
+| `RETENTION_DAYS` | `7` | Max age in days before pruning |
+| `SKIP_C_SAVE` | `0` | Set to `1` to skip pre-backup save trigger |
+| `TZ` | `UTC` | Timezone for cron and timestamps |
+
+With hourly backups at ~2–3 MB each, 7 days of retention uses about **350–500 MB** of disk.
+
+**Restoring a backup:**
+
+```powershell
+# 1. Stop the server
+docker compose down
+
+# 2. Restore the save directory
+Remove-Item -Recurse -Force data\save\Cluster_1\Master\save
+Remove-Item -Recurse -Force data\save\Cluster_1\Caves\save
+& "C:\Program Files\7-Zip\7z.exe" x data\backups\Cluster_1-2026-06-16-140000.zip -odata\save\
+
+# 3. Start the server
+docker compose up -d
 ```
 
 ### Granting admin

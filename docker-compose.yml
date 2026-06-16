@@ -79,5 +79,27 @@ services:
         limits:
           memory: 4G
 
+  # ── Backup scheduler (built-in cron) ────────────────────
+  # Build once:    docker compose build dst-backup
+  # Start/stop:    docker compose up -d dst-backup
+  # One-off run:   docker compose run --rm dst-backup /usr/local/bin/backup.sh
+  #
+  # Requires the Docker socket to trigger c_save() on the master
+  # before each snapshot. The save volume is mounted read-only.
+  dst-backup:
+    build:
+      context: ./docker/backup
+    container_name: dst-backup
+    restart: unless-stopped
+    volumes:
+      - ./data/save:/data/save:ro
+      - ./data/backups:/data/backups
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    environment:
+      - RETENTION_COUNT=168
+      - RETENTION_DAYS=7
+      - SKIP_C_SAVE=0
+      - TZ=UTC
+
 volumes:
   dst_ugc_mods:

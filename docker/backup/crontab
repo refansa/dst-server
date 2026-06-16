@@ -1,0 +1,10 @@
+# ── DST world backup schedule ─────────────────────────
+# Format: minute hour day month weekday command
+#
+# Run every hour at :05 past. The 5-minute offset avoids
+# racing against DST's autosave (day transitions).
+#
+# To customise: edit this file, rebuild the image, and restart.
+#   docker compose build dst-backup && docker compose up -d
+#
+5 * * * * /usr/local/bin/backup.sh
