@@ -93,17 +93,56 @@ docker compose down
 
 ### Adding mods
 
+Mods are managed through `data/mods/mods.conf` — the single source of truth. The `manage-mods` CLI handles the rest.
+
 ```bash
-# 1. Add Workshop IDs to data/mods/dedicated_server_mods_setup.lua
-#    ServerModSetup("378160973")   # Global Positions
+# Add a mod (with optional config)
+bash scripts/manage-mods.sh add 378160973 "SHOWFIREICONS=true,SHAREMINIMAPPROGRESS=true"
 
-# 2. Download mods
-docker compose --profile mod-update run --rm dst-mod-updater
+# Add a mod without config
+bash scripts/manage-mods.sh add 351325790
 
-# 3. Enable mods in data/save/Cluster_1/modoverrides.lua
+# List all mods with status
+bash scripts/manage-mods.sh list
 
-# 4. Restart
+# Enable / disable (keeps config)
+bash scripts/manage-mods.sh enable 378160973
+bash scripts/manage-mods.sh disable 378160973
+
+# Remove a mod entirely
+bash scripts/manage-mods.sh remove 351325790
+
+# Regenerate Lua files + download mods + print restart instruction
+bash scripts/manage-mods.sh sync
+```
+
+**PowerShell equivalents:**
+```powershell
+.\scripts\manage-mods.ps1 add 378160973 "SHOWFIREICONS=true,SHAREMINIMAPPROGRESS=true"
+.\scripts\manage-mods.ps1 sync
+```
+
+**What `sync` does:**
+1. Reads `data/mods/mods.conf`
+2. Generates `data/mods/dedicated_server_mods_setup.lua` (download list)
+3. Generates `data/save/Cluster_1/modoverrides.lua` (enable + config)
+4. Runs the mod updater container to download/update mods
+5. Prints the restart command
+
+**Or edit manually** — you can also edit `mods.conf` directly, then run `sync`:
+
+```bash
+# Edit mods.conf with your IDs, then:
+bash scripts/manage-mods.sh sync
 docker compose restart
+```
+
+**`mods.conf` format:**
+```
+# id  enabled  config_options
+378160973  true  SHOWFIREICONS=true,SHAREMINIMAPPROGRESS=true
+351325790  true
+375859599  true
 ```
 
 ### Granting admin
