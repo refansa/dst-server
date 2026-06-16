@@ -27,6 +27,11 @@ if [ -n "${CLUSTER_NAME:-}" ]; then
     echo "✓ cluster_name set to: $CLUSTER_NAME"
 fi
 
+if [ -n "${CLUSTER_DESCRIPTION:-}" ]; then
+    sed -i "s/^cluster_description =.*/cluster_description = $CLUSTER_DESCRIPTION/" data/save/Cluster_1/cluster.ini
+    echo "✓ cluster_description set"
+fi
+
 if [ -n "${CLUSTER_PASSWORD:-}" ]; then
     sed -i "s/^cluster_password =.*/cluster_password = $CLUSTER_PASSWORD/" data/save/Cluster_1/cluster.ini
     echo "✓ cluster_password set"

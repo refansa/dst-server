@@ -34,6 +34,13 @@ if ($name) {
     Write-Host "✓ cluster_name set to: $name"
 }
 
+# Inject cluster_description
+$desc = $env:CLUSTER_DESCRIPTION
+if ($desc) {
+    (Get-Content $clusterIni) -replace '^cluster_description =.*', "cluster_description = $desc" | Set-Content $clusterIni
+    Write-Host "✓ cluster_description set"
+}
+
 # Inject cluster_password
 $pass = $env:CLUSTER_PASSWORD
 if ($pass) {
